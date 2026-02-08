@@ -5,45 +5,36 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.finals.databinding.ActivityMainBinding
+
+
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
 
-        // Apply window insets
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        EventRepository.init(this)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
 
-        // Find the role cards
-        val adminCard = findViewById<CardView>(R.id.adminCard)
-        val studentCard = findViewById<CardView>(R.id.studentCard)
+        binding.adminCard.setOnClickListener { startActivity(Intent(this, AdminActivity::class.java)) }
+        binding.studentCard.setOnClickListener { startActivity(Intent(this, StudentActivity::class.java)) }
 
-        // Set click listeners
-        adminCard.setOnClickListener {
-            // Navigate to AdminActivity
-            val intent = Intent(this, AdminActivity::class.java)
-            startActivity(intent)
-        }
-
-        studentCard.setOnClickListener {
-            // Navigate to StudentActivity
-            val intent = Intent(this, StudentActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Apply fade-in animation
-        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-        val mainLayout = findViewById<ConstraintLayout>(R.id.main)
-        mainLayout.startAnimation(fadeIn)
+        binding.main.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in))
     }
 }
+

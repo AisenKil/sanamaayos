@@ -20,30 +20,27 @@ class StudentHomeActivity : AppCompatActivity(), EventAdapter.OnItemClickListene
     private lateinit var calendarView: CalendarView
     private lateinit var noEventsTextView: TextView
     private var selectedDate: String? = null
+    private val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.US)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_home)
 
-        val backButton = findViewById<ImageButton>(R.id.backButton)
-        backButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
+        EventRepository.init(this)
+
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener { finish() }
 
         calendarView = findViewById(R.id.calendarView)
         eventsRecyclerView = findViewById(R.id.eventsRecyclerView)
         noEventsTextView = findViewById(R.id.noEventsTextView)
-        eventsRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        eventAdapter = EventAdapter(Event.events, this)
+        eventsRecyclerView.layoutManager = LinearLayoutManager(this)
+        eventAdapter = EventAdapter(emptyList(), this)
         eventsRecyclerView.adapter = eventAdapter
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
-            selectedDate = sdf.format(calendar.time)
+            val cal = Calendar.getInstance().apply { set(year, month, dayOfMonth) }
+            selectedDate = dateFormat.format(cal.time)
             updateEventList()
         }
 
@@ -56,27 +53,16 @@ class StudentHomeActivity : AppCompatActivity(), EventAdapter.OnItemClickListene
     }
 
     private fun updateEventList() {
-        val eventsToShow = if (selectedDate != null) {
-            Event.events.filter { it.date == selectedDate }
-        } else {
-            Event.events
-        }
-
+        val eventsToShow = EventRepository.getByDate(selectedDate)
         eventAdapter.updateEvents(eventsToShow)
 
-        if (eventsToShow.isEmpty()) {
-            noEventsTextView.visibility = View.VISIBLE
-            eventsRecyclerView.visibility = View.GONE
-        } else {
-            noEventsTextView.visibility = View.GONE
-            eventsRecyclerView.visibility = View.VISIBLE
-        }
+        val hasEvents = eventsToShow.isNotEmpty()
+        noEventsTextView.visibility = if (hasEvents) View.GONE else View.VISIBLE
+        eventsRecyclerView.visibility = if (hasEvents) View.VISIBLE else View.GONE
     }
 
     override fun onItemClick(event: Event) {
-        val intent = Intent(this, EventDetailsActivity::class.java).apply {
-            putExtra("EVENT_ID", event.id)
-        }
-        startActivity(intent)
+        startActivity(Intent(this, EventDetailsActivity::class.java).putExtra("EVENT_ID", event.id))
     }
 }
+

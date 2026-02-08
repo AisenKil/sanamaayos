@@ -11,6 +11,8 @@ class AddEventActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_event)
 
+        EventRepository.init(this)
+
         val titleEditText = findViewById<EditText>(R.id.eventTitle)
         val dateEditText = findViewById<EditText>(R.id.eventDate)
         val timeEditText = findViewById<EditText>(R.id.eventTime)
@@ -18,19 +20,24 @@ class AddEventActivity : AppCompatActivity() {
         val descriptionEditText = findViewById<EditText>(R.id.eventDescription)
         val saveEventButton = findViewById<Button>(R.id.saveEventButton)
 
-        val selectedDate = intent.getStringExtra("SELECTED_DATE")
+        val selectedDate = intent.getStringExtra("SELECTED_DATE").orEmpty()
         dateEditText.setText(selectedDate)
-        dateEditText.isEnabled = false // Makes it non-editable
+        dateEditText.isEnabled = false
 
         saveEventButton.setOnClickListener {
-            val title = titleEditText.text.toString()
-            val date = dateEditText.text.toString()
-            val time = timeEditText.text.toString()
-            val location = locationEditText.text.toString()
-            val description = descriptionEditText.text.toString()
+            val title = titleEditText.text.toString().trim()
+            val date = dateEditText.text.toString().trim()
+            val time = timeEditText.text.toString().trim()
+            val location = locationEditText.text.toString().trim()
+            val description = descriptionEditText.text.toString().trim()
 
-            if (title.isNotEmpty() && date.isNotEmpty() && time.isNotEmpty() && location.isNotEmpty() && description.isNotEmpty()) {
-                val newEvent = Event(
+            if (title.isEmpty() || date.isEmpty() || time.isEmpty() || location.isEmpty() || description.isEmpty()) {
+                return@setOnClickListener
+            }
+
+            EventRepository.add(
+                this,
+                Event(
                     id = UUID.randomUUID().toString(),
                     title = title,
                     date = date,
@@ -38,9 +45,15 @@ class AddEventActivity : AppCompatActivity() {
                     location = location,
                     description = description
                 )
-                Event.events.add(0, newEvent) // Add to the top of the list
-                finish() // Go back to the previous screen
-            }
+            )
+
+            NotificationHelper.showAnnouncement(
+                this,
+                "New Announcement",
+                title
+            )
+
+            finish()
         }
     }
 }

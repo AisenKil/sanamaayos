@@ -9,21 +9,19 @@ class EventDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_details)
 
+        EventRepository.init(this)
+
         val eventId = intent.getStringExtra("EVENT_ID")
-        val event = Event.events.find { it.id == eventId }
-
-        if (event != null) {
-            val titleTextView = findViewById<TextView>(R.id.eventTitle)
-            val dateTextView = findViewById<TextView>(R.id.eventDate)
-            val timeTextView = findViewById<TextView>(R.id.eventTime)
-            val locationTextView = findViewById<TextView>(R.id.eventLocation)
-            val descriptionTextView = findViewById<TextView>(R.id.eventDescription)
-
-            titleTextView.text = event.title
-            dateTextView.text = event.date
-            timeTextView.text = event.time
-            locationTextView.text = event.location
-            descriptionTextView.text = event.description
+        val event = EventRepository.findById(eventId) ?: run {
+            finish()
+            return
         }
+
+        findViewById<TextView>(R.id.eventTitle).text = event.title
+        findViewById<TextView>(R.id.eventDate).text = event.date
+        findViewById<TextView>(R.id.eventTime).text = event.time
+        findViewById<TextView>(R.id.eventLocation).text = event.location
+        findViewById<TextView>(R.id.eventDescription).text = event.description
     }
 }
+

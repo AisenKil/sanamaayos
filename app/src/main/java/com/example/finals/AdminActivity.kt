@@ -18,24 +18,16 @@ class AdminActivity : AppCompatActivity() {
         val cancelButton = findViewById<Button>(R.id.cancelButton)
 
         loginButton.setOnClickListener {
-            // For now, we'll just navigate to the admin home screen
-            val intent = Intent(this, AdminHomeActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, AdminHomeActivity::class.java))
+            finish()
         }
 
         registerButton.setOnClickListener {
-            // For now, we'll just show a toast message
             Toast.makeText(this, "Register clicked", Toast.LENGTH_SHORT).show()
         }
 
-        backButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-
-        cancelButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
+        backButton.setOnClickListener { finish() }
+        cancelButton.setOnClickListener { finish() }
     }
 }
+
