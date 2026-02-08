@@ -47,12 +47,7 @@ class AddEventActivity : AppCompatActivity() {
                 )
             )
 
-            NotificationHelper.showAnnouncement(
-                this,
-                "New Announcement",
-                title
-            )
-
+            NotificationHelper.showAnnouncement(this, "New Announcement", title)
             finish()
         }
     }
